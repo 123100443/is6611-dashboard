@@ -17,13 +17,12 @@
 
 <body>
     <script>
-        const debug = false; // Set this to false to disable debug mode
+        const debug = true; // Set this to false to disable debug mode
         const predefinedCode = "1234"; // Predefined code for debug mode
 
         const patientData = {
             "1234": {
                 triageScore: 3,
-                currentWaitTime: "100 mins",
                 estimatedWaitTime: "60 mins",
                 basicData: {
                     name: "Robert Davis",
@@ -48,7 +47,6 @@
             },
             "2345": {
                 triageScore: 4,
-                currentWaitTime: "243 mins",
                 estimatedWaitTime: "120 mins",
                 basicData: {
                     name: "Maria Garcia",
@@ -70,7 +68,6 @@
             },
             "3456": {
                 triageScore: 1,
-                currentWaitTime: "8 mins",
                 estimatedWaitTime: "0 mins",
                 basicData: {
                     name: "James Wilson",
@@ -110,15 +107,66 @@
             }
         }
 
+        function translateTriageScore(score) {
+            switch (score) {
+                case 1:
+                    return "Immediate: This means your condition is very serious and you need to be seen right away. ";
+                case 2:
+                    return "Very Urgent: This means you need to be seen very soon because your condition could become serious.";
+                case 3:
+                    return "Urgent: This means you need to be seen soon, but your condition is not immediately life-threatening.";
+                case 4:
+                    return "Standard: This means you need to be seen by a doctor, but you can wait a bit as it's less serious.";
+                case 5:
+                    return "Non-Urgent: This means your condition is not an emergency and you can wait to be seen.";
+                default:
+                    return "Invalid triage score.";
+            }
+        }
+
+        function getResponseTime(score) {
+            const responseTimes = {
+                1: 0,    // Immediate
+                2: 10,   // Within 10 minutes
+                3: 60,   // Within 60 minutes
+                4: 120,  // Within 120 minutes
+                5: 240   // Within 240 minutes
+            };
+            return responseTimes[score] || -1; // Return -1 for invalid scores
+        }
+
         function displayDashboard(data) {
             $('#triageScore').text(data.triageScore);
-            $('#triageScoreDesc').text(`The triage score is ${data.triageScore}, indicating the severity of the patient's condition.`);
+            $('#triageScoreDesc').text(translateTriageScore(data.triageScore));
 
-            $('#currentWaitTime').text(data.currentWaitTime);
-            $('#currentWaitTimeDesc').text(`The current wait time is ${data.currentWaitTime}.`);
+            // Change triageScore color based on value
+            const triageScoreElement = $('#triageScore');
+            switch (data.triageScore) {
+                case 1:
+                    triageScoreElement.css('color', '#FF0000'); // Red - Immediate
+                    break;
+                case 2:
+                    triageScoreElement.css('color', '#FFA500'); // Orange - Very Urgent
+                    break;
+                case 3:
+                    triageScoreElement.css('color', '#ffc107'); // Yellow - Urgent
+                    break;
+                case 4:
+                    triageScoreElement.css('color', '#008000'); // Green - Standard
+                    break;
+                case 5:
+                    triageScoreElement.css('color', '#0000FF'); // Blue - Non-Urgent
+                    break;
+                default:
+                    triageScoreElement.css('color', 'black'); // Default color
+            }
+
+            const targetWaitTime = getResponseTime(data.triageScore);
+            $('#targetWaitTime').text(`${targetWaitTime} mins`);
+            $('#targetWaitTimeDesc').html(`The MTS target wait time is the maximum time within which we aim to see patients with your triage score. Your actual wait time may vary.`);
 
             $('#estimatedWaitTime').text(data.estimatedWaitTime);
-            $('#estimatedWaitTimeDesc').text(`The estimated wait time is ${data.estimatedWaitTime}.`);
+            $('#estimatedWaitTimeDesc').html(`Your estimated wait time is calculated based on current conditions and may vary.`);
 
             $('#patientName').text(data.basicData.name);
             $('#patientAge').text(data.basicData.age);
@@ -157,7 +205,7 @@
             <div class="col">
                 <div class="card h-100 d-flex flex-column">
                     <div class="card-body d-flex flex-column justify-content-center">
-                        <h5 class="card-title text-center">Triage Score</h5>
+                        <h5 class="card-title text-center">MTS Triage Score</h5>
                         <p class="card-text display-4 fw-bold text-center" id="triageScore"></p>
                         <p class="card-desc text-center" id="triageScoreDesc"></p>
                     </div>
@@ -166,16 +214,16 @@
             <div class="col">
                 <div class="card h-100 d-flex flex-column">
                     <div class="card-body d-flex flex-column justify-content-center">
-                        <h5 class="card-title text-center">Current Wait Time</h5>
-                        <p class="card-text display-4 fw-bold text-center" id="currentWaitTime"></p>
-                        <p class="card-desc text-center" id="currentWaitTimeDesc"></p>
+                        <h5 class="card-title text-center">MTS Target Wait Time</h5>
+                        <p class="card-text display-4 fw-bold text-center" id="targetWaitTime"></p>
+                        <p class="card-desc text-center" id="targetWaitTimeDesc"></p>
                     </div>
                 </div>
             </div>
             <div class="col">
                 <div class="card h-100 d-flex flex-column">
                     <div class="card-body d-flex flex-column justify-content-center">
-                        <h5 class="card-title text-center">Estimated Wait Time</h5>
+                        <h5 class="card-title text-center">Personlised Estimated Wait Time</h5>
                         <p class="card-text display-4 fw-bold text-center" id="estimatedWaitTime"></p>
                         <p class="card-desc text-center" id="estimatedWaitTimeDesc"></p>
                     </div>
@@ -262,8 +310,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
-        // Sample data for demonstration (replace with your actual data)
-        const waitTimeData = [25, 28, 18, 32, 20, 15, 22, 26, 30, 25, 18, 23, 28, 35, 30, 22, 18, 25, 20, 28, 32, 26, 20, 18, 22, 30, 28, 25, 22, 20];
+        const waitTimeData = [180, 210, 150, 200, 195, 160, 240, 230, 175, 190,
+            220, 250, 185, 215, 170, 205, 235, 190, 225, 180,
+            210, 195, 165, 240, 225, 180, 200, 230, 195, 215];
         const claimLabels = ['Flu', 'Sprained Ankle', 'High Blood Pressure', 'Fracture', 'Migraine'];
         const claimData = [12, 8, 5, 3, 2];
 
@@ -312,18 +361,18 @@
                     label: 'Number of Claims',
                     data: claimData,
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 206, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)'
+                        'rgba(8, 69, 105, 0.8)',   // #084569
+                        'rgba(8, 86, 133, 0.8)',   // #085685
+                        'rgba(31, 138, 215, 0.8)',  // #1f8ad7
+                        'rgba(132, 179, 232, 0.8)', // #84b3e8
+                        'rgba(53, 255, 251, 0.8)'  // #35fffb
                     ],
                     borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
+                        'rgba(8, 69, 105, 1)',     // #084569
+                        'rgba(8, 86, 133, 1)',     // #085685
+                        'rgba(31, 138, 215, 1)',    // #1f8ad7
+                        'rgba(132, 179, 232, 1)',   // #84b3e8
+                        'rgba(53, 255, 251, 1)'    // #35fffb
                     ],
                     borderWidth: 1
                 }]
