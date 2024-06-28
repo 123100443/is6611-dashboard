@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #dee9f1;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const debug = false; // Set this to false to disable debug mode
+        const predefinedCode = "1234"; // Predefined code for debug mode
+
+        const patientData = {
+            "1234": {
+                triageScore: 3,
+                currentWaitTime: "100 mins",
+                estimatedWaitTime: "60 mins",
+                basicData: {
+                    name: "Robert Davis",
+                    age: 70,
+                    condition: "N/A" // Placeholder 
+                },
+                temperature: "96.3 F",
+                heartRate: "88 bpm",
+                bloodPressure: "126/63 mmHg",
+                oxygenSaturation: "99%",
+                medications: [
+                    "Analgesic and Antihistamine Combination",
+                    "Analgesics"
+                ],
+                appointments: [
+                    {
+                        date: "2024-07-08",
+                        time: "10:00 AM",
+                        doctor: "Dr. Smith"
+                    }
+                ]
+            },
+            "2345": {
+                triageScore: 4,
+                currentWaitTime: "243 mins",
+                estimatedWaitTime: "120 mins",
+                basicData: {
+                    name: "Maria Garcia",
+                    age: 46,
+                    condition: "N/A" // Placeholder 
+                },
+                temperature: "98.5 F",
+                heartRate: "93 bpm",
+                bloodPressure: "148/94 mmHg",
+                oxygenSaturation: "98%",
+                medications: [],
+                appointments: [
+                    {
+                        date: "2024-07-12",
+                        time: "2:00 PM",
+                        doctor: "Dr. Jones"
+                    }
+                ]
+            },
+            "3456": {
+                triageScore: 1,
+                currentWaitTime: "8 mins",
+                estimatedWaitTime: "0 mins",
+                basicData: {
+                    name: "James Wilson",
+                    age: 58,
+                    condition: "N/A" // Placeholder
+                },
+                temperature: "98 F",
+                heartRate: "93 bpm",
+                bloodPressure: "130/100 mmHg",
+                oxygenSaturation: "97%",
+                medications: [
+                    "Analgesics"
+                ],
+                appointments: [
+                    {
+                        date: "2024-07-09",
+                        time: "11:30 AM",
+                        doctor: "Dr. Brown"
+                    }
+                ]
+            }
+        };
+
+        function checkCode() {
+            let code;
+            if (debug) {
+                code = predefinedCode;
+            } else {
+                code = prompt("Please enter the 4-digit code:");
+            }
+
+            if (patientData[code]) {
+                displayDashboard(patientData[code]);
+            } else {
+                alert("Code not found!");
+                checkCode();
+            }
+        }
+
+        function displayDashboard(data) {
+            $('#triageScore').text(data.triageScore);
+            $('#triageScoreDesc').text(`The triage score is ${data.triageScore}, indicating the severity of the patient's condition.`);
+
+            $('#currentWaitTime').text(data.currentWaitTime);
+            $('#currentWaitTimeDesc').text(`The current wait time is ${data.currentWaitTime}.`);
+
+            $('#estimatedWaitTime').text(data.estimatedWaitTime);
+            $('#estimatedWaitTimeDesc').text(`The estimated wait time is ${data.estimatedWaitTime}.`);
+
+            $('#patientName').text(data.basicData.name);
+            $('#patientAge').text(data.basicData.age);
+            $('#patientCondition').text(data.basicData.condition);
+
+            // Display additional patient data
+            $('#temperature').text(data.temperature);
+            $('#heartRate').text(data.heartRate);
+            $('#bloodPressure').text(data.bloodPressure);
+            $('#oxygenSaturation').text(data.oxygenSaturation);
+
+            // Display medications list
+            const medicationsList = $('#medicationsList');
+            medicationsList.empty(); // Clear previous list
+            data.medications.forEach(medication => {
+                medicationsList.append(`<li>${medication}</li>`);
+            });
+
+            // Display appointments list
+            const appointmentsList = $('#appointmentsList');
+            appointmentsList.empty(); // Clear previous list
+            data.appointments.forEach(appointment => {
+                appointmentsList.append(`<li>${appointment.date} at ${appointment.time} with ${appointment.doctor}</li>`);
+            });
+
+            $('#dashboard').show();
+        }
+
+        $(document).ready(function () {
+            checkCode();
+        });
+    </script>
+
+    <div class="container p-4" id="dashboard">
+        <div class="row row-cols-1 row-cols-md-3">
+            <div class="col">
+                <div class="card h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title text-center">Triage Score</h5>
+                        <p class="card-text display-4 fw-bold text-center" id="triageScore"></p>
+                        <p class="card-desc text-center" id="triageScoreDesc"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title text-center">Current Wait Time</h5>
+                        <p class="card-text display-4 fw-bold text-center" id="currentWaitTime"></p>
+                        <p class="card-desc text-center" id="currentWaitTimeDesc"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title text-center">Estimated Wait Time</h5>
+                        <p class="card-text display-4 fw-bold text-center" id="estimatedWaitTime"></p>
+                        <p class="card-desc text-center" id="estimatedWaitTimeDesc"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Patient Data</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Name:</strong> <span id="patientName"></span></p>
+                                <p><strong>Age:</strong> <span id="patientAge"></span></p>
+                                <p><strong>Condition:</strong> <span id="patientCondition"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Temperature:</strong> <span id="temperature"></span></p>
+                                <p><strong>Heart Rate:</strong> <span id="heartRate"></span></p>
+                                <p><strong>Blood Pressure:</strong> <span id="bloodPressure"></span></p>
+                                <p><strong>Oxygen Saturation:</strong> <span id="oxygenSaturation"></span></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="card-subtitle mb-2">Medications</h6>
+                                <ul id="medicationsList">
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="card-subtitle mb-2">Appointments</h6>
+                                <ul id="appointmentsList">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col">
+                <div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Past 30 Days Wait Time
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                            data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <div class="chart-container">
+                                    <canvas id="chart1"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Top Patient Claims
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                            data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <div class="chart-container">
+                                    <canvas id="chart2"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        // Sample data for demonstration (replace with your actual data)
+        const waitTimeData = [25, 28, 18, 32, 20, 15, 22, 26, 30, 25, 18, 23, 28, 35, 30, 22, 18, 25, 20, 28, 32, 26, 20, 18, 22, 30, 28, 25, 22, 20];
+        const claimLabels = ['Flu', 'Sprained Ankle', 'High Blood Pressure', 'Fracture', 'Migraine'];
+        const claimData = [12, 8, 5, 3, 2];
+
+        // Chart 1: Past 30 Days Wait Time
+        const ctx1 = document.getElementById('chart1').getContext('2d');
+        const chart1 = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+                datasets: [{
+                    label: 'Wait Time (mins)',
+                    data: waitTimeData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4 // Adds a slight curve to the line
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Wait Time (mins)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Day'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Top Patient Claims
+        const ctx2 = document.getElementById('chart2').getContext('2d');
+        const chart2 = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: claimLabels,
+                datasets: [{
+                    label: 'Number of Claims',
+                    data: claimData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Claims'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
